@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div>
+        <h1>Annuaire</h1>
+    
+        <input id="typing" type="text">
+        <button id="rech">recherche</button>
+        <button id="list-btn">Tout</button>
+    </div>
+
+    
+    <div id="afficher"></div>
+
+    <script>
+
+//construction de l'affichage du resultat
+        function display(data)
+        {
+            //selectionner la div de resultat
+            const div=document.getElementById("afficher");
+            //effacer son contenu
+            div.replaceChildren();
+            //pour chaque element dans data
+            for(const element of data)
+            {
+                //creer une nvelle div
+                const row=document.createElement('div');
+                //charger le contenu de cette div avec object.values(element.join(' - '))
+                row.innerHTML=Object.values(element).join(' - ');
+                //on rattache la div creer a la div resultat
+                div.appendChild(row);
+            }
+        }
+        function handleList(){
+          fetch('http://localhost:4000')//le promise
+          .then(function(response)//debut du calback
+          {//response =la reponse brut du serveur
+              return response.json();// transformation brut en json
+          })
+          .then(function(data)
+          {
+              display(data);
+          });//fin callback
+        }
+        
+/**
+ * Q2 : Modifier la fonction handleSearch pour appeler le service search
+ * sur l'endpoint : POST http://localhost:4000/search
+ * en envoyant une donnée "text" avec comme valeur ce que l'utilisateur a
+ * entré dans l'input.
+ * Afficher les resultats provenant du service.
+ */
+
+        function handleSearch() {
+            var input = document.getElementById("typing").value;
+            // alert(input);
+
+            fetch('http://localhost:4000/search',//on peut ne pas ajouter /search
+            {
+                method:'post',
+                headers: {
+                    'Accept':'application/json',
+                    'content-type':'application/json',
+                },
+                body:JSON.stringify({
+                    text: input
+                })
+            })
+            .then(function(response){
+                return response.json();
+            })
+            .then(function(data){
+                display(data);// pour affichage du resultat
+            })
+
+            document.getElementById('typing').value='';
+        }
+        const listBtn=document.getElementById('list-btn');
+        listBtn.addEventListener('click',handleList);
+        const searchBtn = document.getElementById('rech')
+        searchBtn.addEventListener('click', handleSearch)
+        
+    </script>
+</body>
+</html>
